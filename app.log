@@ -26,3 +26,44 @@ Press CTRL+C to quit
 127.0.0.1 - - [18/May/2026 16:48:04] "GET /login HTTP/1.1" 200 -
 127.0.0.1 - - [18/May/2026 16:48:04] "GET /static/css/style.css HTTP/1.1" 304 -
 127.0.0.1 - - [18/May/2026 16:48:04] "GET /static/js/main.js HTTP/1.1" 304 -
+ * Detected change in 'C:\\Users\\Ashritha\\desktop\\expense-tracker\\app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 216-306-329
+127.0.0.1 - - [18/May/2026 16:57:55] "GET /privacy HTTP/1.1" 200 -
+127.0.0.1 - - [18/May/2026 16:58:09] "GET /privacy HTTP/1.1" 200 -
+127.0.0.1 - - [18/May/2026 16:58:23] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/May/2026 16:58:34] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/May/2026 17:00:07] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [18/May/2026 17:00:07] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:00:07] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:00:11] "GET /privacy HTTP/1.1" 200 -
+127.0.0.1 - - [18/May/2026 17:00:11] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:00:11] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:00:15] "GET /terms HTTP/1.1" 200 -
+127.0.0.1 - - [18/May/2026 17:00:15] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:00:15] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:00:19] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/May/2026 17:00:19] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:00:19] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:00:22] "GET /register HTTP/1.1" 200 -
+127.0.0.1 - - [18/May/2026 17:00:22] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:00:22] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:00:23] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [18/May/2026 17:00:23] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:00:23] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:00:25] "GET /register HTTP/1.1" 200 -
+127.0.0.1 - - [18/May/2026 17:00:25] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:00:25] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:00:28] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/May/2026 17:00:28] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:00:28] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:11:49] "GET /register HTTP/1.1" 200 -
+127.0.0.1 - - [18/May/2026 17:11:49] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:11:49] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:11:50] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/May/2026 17:11:50] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:11:50] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:47:43] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/May/2026 17:47:43] "GET /static/css/style.css HTTP/1.1" 304 -
+127.0.0.1 - - [18/May/2026 17:47:43] "GET /static/js/main.js HTTP/1.1" 304 -

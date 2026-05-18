@@ -18,6 +18,7 @@
         </p>
         <div class="hero-actions">
             <a href="{{ url_for('register') }}" class="btn-primary">Start tracking free</a>
+            <a href="#" class="btn-ghost see-how-it-works">See how it works</a>
             <a href="{{ url_for('login') }}" class="btn-ghost">Sign in</a>
         </div>
     </div>
@@ -88,5 +89,89 @@
         <a href="{{ url_for('register') }}" class="btn-primary">Create free account</a>
     </div>
 </section>
+
+<div id="how-it-works-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <div class="video-container">
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/placeholder" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+    </div>
+</div>
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 600px;
+        position: relative;
+    }
+    .close-button {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+    .close-button:hover,
+    .close-button:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .video-container {
+        position: relative;
+        padding-bottom: 56.25%;
+        height: 0;
+        overflow: hidden;
+    }
+    .video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var modal = document.getElementById("how-it-works-modal");
+        var btn = document.querySelector(".see-how-it-works");
+        var span = document.getElementsByClassName("close-button")[0];
+        var videoIframe = document.querySelector("#how-it-works-modal iframe");
+
+        btn.addEventListener('click', function(event) {
+            event.preventDefault();
+            modal.style.display = "block";
+            videoIframe.src = "https://www.youtube.com/embed/placeholder";
+        });
+
+        span.addEventListener('click', function() {
+            modal.style.display = "none";
+            videoIframe.src = "";
+        });
+
+        window.addEventListener('click', function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+                videoIframe.src = "";
+            }
+        });
+    });
+</script>
 
 {% endblock %}
