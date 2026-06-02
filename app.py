@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 from database.db import init_db, seed_db, get_db
 
 app = Flask(__name__)
+app.secret_key = 'your-secret-key-here'  # In production, use environment variable
 
 
 # ------------------------------------------------------------------ #
@@ -69,8 +70,48 @@ def register():
     return render_template("register.html")
 
 
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
+    if request.method == "POST":
+        email = request.form.get("email", "").strip()
+        password = request.form.get("password", "")
+
+        # Validation
+        error = None
+        if not email:
+            error = "Email is required."
+        elif not password:
+            error = "Password is required."
+
+        if error is None:
+            conn = get_db()
+            try:
+                cursor = conn.cursor()
+                # Find user by email
+                cursor.execute("SELECT id, name, password_hash FROM users WHERE email = ?", (email,))
+                user = cursor.fetchone()
+
+                if user is not None:
+                    # Verify password
+                    from werkzeug.security import check_password_hash
+                    if check_password_hash(user['password_hash'], password):
+                        # Login successful
+                        session['user_id'] = user['id']
+                        session['user_name'] = user['name']
+                        return redirect(url_for('landing'))
+                    else:
+                        error = "Invalid email or password."
+                else:
+                    error = "Invalid email or password."
+            except Exception as e:
+                error = f"Login error: {e}"
+            finally:
+                conn.close()
+
+        # If we have an error, render the template with error
+        return render_template("login.html", error=error)
+
+    # GET request
     return render_template("login.html")
 
 
@@ -88,9 +129,15 @@ def privacy():
 # Placeholder routes — students will implement these                  #
 # ------------------------------------------------------------------ #
 
-@app.route("/logout")
+@app.route("/dashboard")
+def dashboard():
+    return "Dashboard — coming in Step 4"
+
+
+@app.route("/logout", methods=["POST"])
 def logout():
-    return "Logout — coming in Step 3"
+    session.clear()
+    return redirect(url_for('landing'))
 
 
 @app.route("/profile")
