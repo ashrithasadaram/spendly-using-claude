@@ -142,7 +142,24 @@ def logout():
 
 @app.route("/profile")
 def profile():
-    return "Profile page — coming in Step 4"
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT name, email, created_at FROM users WHERE id = ?",
+        (session['user_id'],)
+    )
+    user = cursor.fetchone()
+    conn.close()
+
+    if user is None:
+        # If user not found, clear session and redirect to login
+        session.clear()
+        return redirect(url_for('login'))
+
+    return render_template("profile.html", user=user)
 
 
 @app.route("/expenses/add")
