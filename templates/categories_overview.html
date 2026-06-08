@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Categories Overview - Spendly{% endblock %}
+
+{% block content %}
+<div class="categories-overview-container">
+    <div class="categories-overview-header">
+        <h1>Expense Categories</h1>
+        <p>Breakdown of your spending by category</p>
+        <div class="categories-overview-actions">
+            <a href="{{ url_for('expenses_summary') }}" class="btn btn-outline">Back to Summary</a>
+            <a href="{{ url_for('expenses') }}" class="btn btn-secondary">View All Expenses</a>
+        </div>
+    </div>
+
+    {% if categories|length > 0 %}
+    <div class="categories-grid">
+        {% for category in categories %}
+        <div class="category-card">
+            <div class="category-card-header">
+                <h3>
+                    <span class="category-tag category-{{ category.category|lower|replace(' ', '-') }}">
+                        {{ category.category }}
+                    </span>
+                </h3>
+                <p class="category-total">₹{{ "%.2f"|format(category.total_amount or 0) }}</p>
+            </div>
+            <div class="category-card-body">
+                <p><strong>{{ category.expense_count }}</strong> expenses</p>
+                <p>Average: ₹{{ "%.2f"|format(category.avg_amount or 0) }}</p>
+                {% if category.first_expense and category.last_expense %}
+                <p>From {{ category.first_expense }} to {{ category.last_expense }}</p>
+                {% endif %}
+            </div>
+            <div class="category-card-footer">
+                <a href="{{ url_for('category_detail', category=category.category) }}" class="btn btn-link">View Details →</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="insights-note">
+        <p><strong>Tip:</strong> Categories help you understand where your money goes and identify areas for potential savings.</p>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h2>No categories found</h2>
+        <p>You need to record some expenses to see category breakdowns.</p>
+        <a href="{{ url_for('add_expense') }}" class="btn btn-primary">Add First Expense</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

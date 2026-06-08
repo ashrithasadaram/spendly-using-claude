@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Spendly{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+    <div class="hero-inner">
+        <div class="hero-badge">Welcome back, {{ session.user_name }}!</div>
+        <h1 class="hero-title">
+            Your financial<br>
+            <em>overview</em>
+        </h1>
+        <p class="hero-subtitle">
+            Here's a quick look at your spending patterns and recent activity.
+            Dive deeper into your finances with our detailed reports.
+        </p>
+        <div class="hero-actions">
+            <a href="{{ url_for('expenses') }}" class="btn-primary">View All Expenses</a>
+            <a href="{{ url_for('add_expense') }}" class="btn-ghost">+ Add Expense</a>
+            <a href="{{ url_for('expenses_summary') }}" class="btn-ghost">See Summary</a>
+        </div>
+    </div>
+    <div class="hero-visual">
+        <div class="mock-card">
+            <div class="mock-card-header">
+                <span class="mock-label">This Month</span>
+                {% if quick_stats %}
+                <span class="mock-total">₹{{ "%.2f"|format(quick_stats.total or 0) }}</span>
+                {% else %}
+                <span class="mock-total">₹0.00</span>
+                {% endif %}
+            </div>
+            <div class="mock-bars">
+                {% if recent_expenses|length > 0 %}
+                {% set categories = {} %}
+                {% for expense in recent_expenses %}
+                {% if expense.category not in categories %}
+                {% set _ = categories.update({expense.category: 0}) %}
+                {% endif %}
+                {% set _ = categories.update({expense.category: categories[expense.category] + 1}) %}
+                {% endfor %}
+                {% set sorted_categories = categories|sort(false, true) %}
+                {% for category, count in sorted_categories[:4] %}
+                <div class="mock-bar-row">
+                    <span class="mock-cat">{{ category }}</span>
+                    <div class="mock-bar-track">
+                        <div class="mock-bar mock-bar-{{ loop.index }}" style="width: {{ (count / recent_expenses|length * 100)|round(0) }}%"></div>
+                    </div>
+                    <span class="mock-amt">{{ count }} expenses</span>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="mock-bar-row">
+                    <span class="mock-cat">No data</span>
+                    <div class="mock-bar-track">
+                        <div class="mock-bar mock-bar-1" style="width: 0%"></div>
+                    </div>
+                    <span class="mock-amt">0 expenses</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="features-inner">
+        {% if quick_stats %}
+        <div class="feature-card">
+            <div class="feature-icon">₹</div>
+            <h3 class="feature-title">Total Spending</h3>
+            <p class="feature-body">₹{{ "%.2f"|format(quick_stats.total or 0) }}</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">◎</div>
+            <h3 class="feature-title">Transactions</h3>
+            <p class="feature-body">{{ quick_stats.count }} expenses recorded</p>
+        </div>
+        {% endif %}
+        <div class="feature-card">
+            <div class="feature-icon">◷</div>
+            <h3 class="feature-title">Recent Activity</h3>
+            <p class="feature-body">
+                {% if recent_expenses|length > 0 %}
+                {{ recent_expenses|length }} recent expenses
+                {% else %}
+                No recent activity
+                {% endif %}
+            </p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3 class="feature-title">Insights Ready</h3>
+            <p class="feature-body">Explore spending patterns and trends</p>
+        </div>
+    </div>
+</section>
+
+<section class="dashboard-modules">
+    <div class="dashboard-module">
+        <h2>Recent Activity</h2>
+        {% if recent_expenses|length > 0 %}
+        <div class="recent-activity-list">
+            {% for expense in recent_expenses %}
+            <div class="activity-item">
+                <div class="activity-item-info">
+                    <div class="activity-date">{{ expense.date }}</div>
+                    <div class="activity-category">
+                        <span class="category-tag category-{{ expense.category|lower|replace(' ', '-') }}">
+                            {{ expense.category }}
+                        </span>
+                    </div>
+                    <div class="activity-description">
+                        {{ expense.description or 'No description' }}
+                    </div>
+                </div>
+                <div class="activity-amount">
+                    ₹{{ "%.2f"|format(expense.amount) }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-state">No expenses recorded yet. Start tracking your spending!</p>
+        {% endif %}
+        <a href="{{ url_for('expenses') }}" class="btn btn-outline">View All Expenses</a>
+    </div>
+
+    <div class="dashboard-module">
+        <h2>Quick Actions</h2>
+        <div class="quick-actions-grid">
+            <a href="{{ url_for('expenses') }}" class="action-card">
+                <h3>Expenses</h3>
+                <p>View, filter, and manage all your expenses</p>
+            </a>
+            <a href="{{ url_for('expenses_summary') }}" class="action-card">
+                <h3>Summary</h3>
+                <p>See spending totals, averages, and trends</p>
+            </a>
+            <a href="{{ url_for('categories_overview') }}" class="action-card">
+                <h3>Categories</h3>
+                <p>Break down your spending by category</p>
+            </a>
+            <a href="{{ url_for('add_expense') }}" class="action-card">
+                <h3>Add Expense</h3>
+                <p>Record a new expense transaction</p>
+            </a>
+        </div>
+    </div>
+
+    <div class="dashboard-module">
+        <h2>Reports & Insights</h2>
+        <div class="reports-grid">
+            <a href="{{ url_for('expenses_summary_monthly') }}" class="action-card">
+                <h3>Monthly Trends</h3>
+                <p>See how your spending changes month over month</p>
+            </a>
+            <a href="{{ url_for('expenses_summary_category') }}" class="action-card">
+                <h3>By Category</h3>
+                <p>Compare spending across different expense categories</p>
+            </a>
+            <a href="{{ url_for('categories_trend') }}" class="action-card">
+                <h3>Category Trends</h3>
+                <p>Track spending patterns in each category over time</p>
+            </a>
+            <a href="{{ url_for('profile') }}" class="action-card">
+                <h3>Profile</h3>
+                <p>View and update your account information</p>
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="cta-inner">
+        <h2 class="cta-title">Take control of your finances</h2>
+        <p class="cta-body">Start tracking your expenses today to build better financial habits.</p>
+        <a href="{{ url_for('add_expense') }}" class="btn-primary">Add Your First Expense</a>
+    </div>
+</section>
+
+{% endblock %}

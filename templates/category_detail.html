@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category }} - Spendly{% endblock %}
+
+{% block content %}
+<div class="category-detail-container">
+    <div class="category-detail-header">
+        <div class="category-detail-header-left">
+            <h1>
+                <span class="category-tag category-{{ category|lower|replace(' ', '-') }}">
+                    {{ category }}
+                </span>
+            </h1>
+            <p>Expense details for {{ category }}</p>
+        </div>
+        <div class="category-detail-header-right">
+            <a href="{{ url_for('categories_overview') }}" class="btn btn-outline">← Back to Categories</a>
+        </div>
+    </div>
+
+    {% if stats.expense_count > 0 %}
+    <div class="category-detail-stats">
+        <div class="stats-row">
+            <div class="stat-item">
+                <h3>{{ stats.expense_count }}</h3>
+                <p>Expenses</p>
+            </div>
+            <div class="stat-item">
+                <h3>₹{{ "%.2f"|format(stats.total_amount or 0) }}</h3>
+                <p>Total Spent</p>
+            </div>
+            <div class="stat-item">
+                <h3>₹{{ "%.2f"|format(stats.avg_amount or 0) }}</h3>
+                <p>Average</p>
+            </div>
+            <div class="stat-item">
+                <h3>₹{{ "%.2f"|format(stats.min_amount or 0) }}</h3>
+                <p>Minimum</p>
+            </div>
+            <div class="stat-item">
+                <h3>₹{{ "%.2f"|format(stats.max_amount or 0) }}</h3>
+                <p>Maximum</p>
+            </div>
+        </div>
+    </div>
+
+    {% if expenses|length > 0 %}
+    <div class="category-expenses-list">
+        <h2>Expenses in this category</h2>
+        {% for expense in expenses %}
+        <div class="category-expense-item">
+            <div class="category-expense-info">
+                <div class="category-expense-date">{{ expense.date }}</div>
+                <div class="category-expense-description">
+                    <strong>{{ expense.description or 'No description' }}</strong>
+                </div>
+            </div>
+            <div class="category-expense-amount">
+                ₹{{ "%.2f"|format(expense.amount) }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No expenses found in this category.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

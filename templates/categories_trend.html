@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Category Trends - Spendly{% endblock %}
+
+{% block content %}
+<div class="categories-trend-container">
+    <div class="categories-trend-header">
+        <h1>Category Spending Trends</h1>
+        <p>How your spending in each category changes over time</p>
+        <div class="categories-trend-actions">
+            <a href="{{ url_for('categories_overview') }}" class="btn btn-outline">Back to Categories Overview</a>
+            <a href="{{ url_for('expenses') }}" class="btn btn-secondary">View All Expenses</a>
+        </div>
+    </div>
+
+    {% if trend_data|length > 0 %}
+    <div class="trend-chart-container">
+        <!-- In a real app, this would be a line chart or stacked area chart -->
+        <div class="trend-data-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        {% for category in categories %}
+                        <th>{{ category }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set months = trend_data|map(attribute='month')|unique|list|sort %}
+                    {% for month in months %}
+                    <tr>
+                        <td>{{ month }}</td>
+                        {% for category in categories %}
+                        {% set amount = 0 %}
+                        {% for data in trend_data %}
+                        {% if data.month == month and data.category == category %}
+                        {% set amount = data.total %}
+                        {% endif %}
+                        {% endfor %}
+                        <td>
+                            {% if amount > 0 %}
+                            ₹{{ "%.2f"|format(amount) }}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="insights-note">
+        <p><strong>Tip:</strong> Watch for seasonal patterns in your spending - some categories like "Shopping" or "Entertainment" might increase during holidays.</p>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h2>No trend data available</h2>
+        <p>You need expenses over multiple months to see category trends.</p>
+        <p>Try recording expenses regularly to build up your spending history.</p>
+        <a href="{{ url_for('add_expense') }}" class="btn btn-primary">Add First Expense</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
