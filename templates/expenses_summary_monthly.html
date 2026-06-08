@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Monthly Summary - Spendly{% endblock %}
+
+{% block content %}
+<div class="monthly-summary-container">
+    <div class="monthly-summary-header">
+        <h1>Monthly Expense Trends</h1>
+        <p>Your spending patterns over time</p>
+        <div class="monthly-summary-actions">
+            <a href="{{ url_for('expenses_summary') }}" class="btn btn-outline">Back to Overall Summary</a>
+            <a href="{{ url_for('expenses') }}" class="btn btn-secondary">View All Expenses</a>
+        </div>
+    </div>
+
+    {% if monthly_data|length > 0 %}
+    <div class="monthly-chart-container">
+        <!-- In a real app, this would be a chart visualization -->
+        <div class="monthly-data-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Number of Expenses</th>
+                        <th>Total Amount</th>
+                        <th>Average Expense</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for month in monthly_data %}
+                    <tr>
+                        <td>{{ month.month }}</td>
+                        <td>{{ month.count }}</td>
+                        <td>₹{{ "%.2f"|format(month.total or 0) }}</td>
+                        <td>₹{{ "%.2f"|format((month.total / month.count)|round(2) if month.count > 0 else 0) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="insights-note">
+        <p><strong>Tip:</strong> Look for patterns in your spending across different months to better understand your financial habits.</p>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h2>No monthly data available</h2>
+        <p>You need at least one expense to see monthly trends.</p>
+        <a href="{{ url_for('add_expense') }}" class="btn btn-primary">Add First Expense</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Expense Summary - Spendly{% endblock %}
+
+{% block content %}
+<div class="summary-container">
+    <div class="summary-header">
+        <h1>Expense Summary</h1>
+        <p>Overview of your spending</p>
+    </div>
+
+    {% if stats %}
+    <div class="summary-stats-grid">
+        <div class="stat-card">
+            <h3>Total Expenses</h3>
+            <p class="stat-value">₹{{ "%.2f"|format(stats.total or 0) }}</p>
+            <p class="stat-label">Total amount spent</p>
+        </div>
+        <div class="stat-card">
+            <h3>Number of Expenses</h3>
+            <p class="stat-value">{{ stats.count }}</p>
+            <p class="stat-label">Total transactions</p>
+        </div>
+        <div class="stat-card">
+            <h3>Average Expense</h3>
+            <p class="stat-value">₹{{ "%.2f"|format(stats.average or 0) }}</p>
+            <p class="stat-label">Average per transaction</p>
+        </div>
+        <div class="stat-card">
+            <h3>Largest Expense</h3>
+            <p class="stat-value">₹{{ "%.2f"|format(stats.maximum or 0) }}</p>
+            <p class="stat-label">Highest single expense</p>
+        </div>
+        <div class="stat-card">
+            <h3>Smallest Expense</h3>
+            <p class="stat-value">₹{{ "%.2f"|format(stats.minimum or 0) }}</p>
+            <p class="stat-label">Lowest single expense</p>
+        </div>
+    </div>
+
+    {% if date_range and date_range.start_date and date_range.end_date %}
+    <div class="summary-date-range">
+        <p><strong>Date Range:</strong> {{ date_range.start_date }} to {{ date_range.end_date }}</p>
+    </div>
+    {% endif %}
+
+    <div class="summary-actions">
+        <a href="{{ url_for('expenses_summary_monthly') }}" class="btn btn-outline">View Monthly Trends</a>
+        <a href="{{ url_for('expenses_summary_category') }}" class="btn btn-outline">View by Category</a>
+        <a href="{{ url_for('expenses') }}" class="btn btn-secondary">View All Expenses</a>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h2>No expense data available</h2>
+        <p>Start tracking your expenses to see summary statistics.</p>
+        <a href="{{ url_for('add_expense') }}" class="btn btn-primary">Add First Expense</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

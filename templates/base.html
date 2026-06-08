@@ -6,7 +6,7 @@
     <title>{% block title %}Spendly{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;60&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     {% block head %}{% endblock %}
 </head>
@@ -19,8 +19,22 @@
                 <span class="brand-name">Spendly</span>
             </a>
             <div class="nav-links">
+                {% if session.user_id %}
+                <div class="user-menu">
+                    <span class="user-greeting">Hello, {{ session.user_name }}!</span>
+                    <nav class="user-nav">
+                        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                        <a href="{{ url_for('expenses') }}">Expenses</a>
+                        <a href="{{ url_for('profile') }}">Profile</a>
+                        <form action="{{ url_for('logout') }}" method="POST" style="display: inline;">
+                            <button type="submit" class="nav-link logout-btn">Logout</button>
+                        </form>
+                    </nav>
+                </div>
+                {% else %}
                 <a href="{{ url_for('login') }}">Sign in</a>
                 <a href="{{ url_for('register') }}" class="nav-cta">Get started</a>
+                {% endif %}
             </div>
         </div>
     </nav>

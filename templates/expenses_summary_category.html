@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Category Summary - Spendly{% endblock %}
+
+{% block content %}
+<div class="category-summary-container">
+    <div class="category-summary-header">
+        <h1>Spending by Category</h1>
+        <p>See where your money goes</p>
+        <div class="category-summary-actions">
+            <a href="{{ url_for('expenses_summary') }}" class="btn btn-outline">Back to Overall Summary</a>
+            <a href="{{ url_for('expenses') }}" class="btn btn-secondary">View All Expenses</a>
+        </div>
+    </div>
+
+    {% if category_data|length > 0 %}
+    <div class="category-chart-container">
+        <!-- In a real app, this would be a pie chart or bar chart -->
+        <div class="category-data-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Number of Expenses</th>
+                        <th>Total Amount</th>
+                        <th>Percentage</th>
+                        <th>Average Expense</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total = category_data|map(attribute='total')|sum %}
+                    {% for category in category_data %}
+                    <tr>
+                        <td>
+                            <span class="category-tag category-{{ category.category|lower|replace(' ', '-') }}">
+                                {{ category.category }}
+                            </span>
+                        </td>
+                        <td>{{ category.count }}</td>
+                        <td>₹{{ "%.2f"|format(category.total or 0) }}</td>
+                        <td>
+                            {% if total > 0 %}
+                            {{ "%.1f"|format((category.total / total) * 100) }}%
+                            {% else %}
+                            0%
+                            {% endif %}
+                        </td>
+                        <td>₹{{ "%.2f"|format((category.total / category.count)|round(2) if category.count > 0 else 0) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="insights-note">
+        <p><strong>Tip:</strong> Focus on reducing expenses in your highest spending categories to improve your budget.</p>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h2>No category data available</h2>
+        <p>You need to record some expenses to see category breakdowns.</p>
+        <a href="{{ url_for('add_expense') }}" class="btn btn-primary">Add First Expense</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

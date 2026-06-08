@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Recent Expenses - Spendly{% endblock %}
+
+{% block content %}
+<div class="recent-expenses-container">
+    <div class="recent-expenses-header">
+        <h1>Recent Expenses</h1>
+        <p>Your last 10 expenses</p>
+        <div class="recent-expenses-actions">
+            <a href="{{ url_for('expenses') }}" class="btn btn-outline">View All Expenses</a>
+        </div>
+    </div>
+
+    {% if expenses|length > 0 %}
+    <div class="recent-expenses-list">
+        {% for expense in expenses %}
+        <div class="expense-item">
+            <div class="expense-item-info">
+                <div class="expense-item-date">{{ expense.date }}</div>
+                <div class="expense-item-category">
+                    <span class="category-tag category-{{ expense.category|lower|replace(' ', '-') }}">
+                        {{ expense.category }}
+                    </span>
+                </div>
+                <div class="expense-item-description">
+                    <strong>{{ expense.description or 'No description' }}</strong>
+                </div>
+            </div>
+            <div class="expense-item-amount">
+                ₹{{ "%.2f"|format(expense.amount) }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h2>No recent expenses</h2>
+        <p>You haven't recorded any expenses yet.</p>
+        <a href="{{ url_for('add_expense') }}" class="btn btn-primary">Add Your First Expense</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
