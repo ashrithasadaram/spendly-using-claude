@@ -23,9 +23,10 @@
                 <div class="user-menu">
                     <span class="user-greeting">Hello, {{ session.user_name }}!</span>
                     <nav class="user-nav">
-                        <a href="{{ url_for('dashboard') }}">Dashboard</a>
-                        <a href="{{ url_for('expenses') }}">Expenses</a>
-                        <a href="{{ url_for('profile') }}">Profile</a>
+                        <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a>
+                        <a href="{{ url_for('expenses') }}" class="{% if request.endpoint in ['expenses', 'expense_detail', 'expenses_recent', 'expenses_summary', 'expenses_summary_monthly', 'expenses_summary_category', 'categories_overview', 'category_detail', 'categories_trend'] %}active{% endif %}">Expenses</a>
+                        <a href="{{ url_for('analytics') }}" class="{% if request.endpoint == 'analytics' %}active{% endif %}">Analytics</a>
+                        <a href="{{ url_for('profile') }}" class="{% if request.endpoint == 'profile' %}active{% endif %}">Profile</a>
                         <form action="{{ url_for('logout') }}" method="POST" style="display: inline;">
                             <button type="submit" class="nav-link logout-btn">Logout</button>
                         </form>

@@ -258,6 +258,17 @@ def profile():
 
 
 # ================================================================== #
+# ANALYTICS (placeholder — coming soon)                               #
+# ================================================================== #
+
+@app.route("/analytics")
+@login_required
+def analytics():
+    """Analytics placeholder — deeper insights coming soon."""
+    return render_template("analytics.html")
+
+
+# ================================================================== #
 # SUBAGENT 1: TRANSACTION HISTORY ROUTES                             #
 # ================================================================== #
 
