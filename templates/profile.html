@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Spendly{% endblock %}
+
+{% block content %}
+<section class="profile-section">
+    <div class="profile-container">
+        <div class="profile-header">
+            <h1 class="profile-title">Your Profile</h1>
+            <p class="profile-subtitle">Manage your account information and review your spending</p>
+        </div>
+
+        <!-- Date Filter Form -->
+        <div class="profile-filters">
+            <form method="GET" action="{{ url_for('profile') }}">
+                <div class="filter-group">
+                    <label for="start_date">From:</label>
+                    <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
+                </div>
+                <div class="filter-group">
+                    <label for="end_date">To:</label>
+                    <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+                </div>
+                <button type="submit" class="btn btn-filter">Filter Expenses</button>
+                <a href="{{ url_for('profile') }}" class="btn btn-reset">Reset</a>
+            </form>
+        </div>
+
+        <!-- User Profile Information -->
+        <div class="profile-info-card">
+            <h2>Account Information</h2>
+            <div class="profile-info-list">
+                <div class="profile-info-item">
+                    <span class="profile-label">Name:</span>
+                    <span class="profile-value">{{ user.name }}</span>
+                </div>
+                <div class="profile-info-item">
+                    <span class="profile-label">Email:</span>
+                    <span class="profile-value">{{ user.email }}</span>
+                </div>
+                <div class="profile-info-item">
+                    <span class="profile-label">Member Since:</span>
+                    <span class="profile-value">{{ user.created_at.split()[0] if user.created_at else 'N/A' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expense Summary -->
+        {% if summary %}
+        <div class="profile-summary-card">
+            <h2>Expense Summary</h2>
+            <p class="summary-text">
+                From {{ start_date }} to {{ end_date }}:
+            </p>
+            <div class="summary-details">
+                <div class="summary-item">
+                    <span class="summary-label">Total Expenses:</span>
+                    <span class="summary-value">{{ summary.count }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Total Amount:</span>
+                    <span class="summary-value">₹{{ "%.2f"|format(summary.total) }}</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Recent Expenses -->
+        <div class="profile-recent-card">
+            <h2>Recent Expenses</h2>
+            {% if recent_expenses|length > 0 %}
+            <div class="recent-expenses-list">
+                {% for expense in recent_expenses %}
+                <div class="expense-item">
+                    <div class="expense-item-info">
+                        <div class="expense-date">{{ expense.date }}</div>
+                        <div class="expense-category">
+                            <span class="category-tag category-{{ expense.category|lower|replace(' ', '-') }}">
+                                {{ expense.category }}
+                            </span>
+                        </div>
+                        {% if expense.description %}
+                        <div class="expense-description">
+                            {{ expense.description }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="expense-amount">
+                        ₹{{ "%.2f"|format(expense.amount) }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="empty-state">No expenses found for the selected date range.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
