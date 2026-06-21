@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from database.db import init_db, seed_db, get_db
 from functools import wraps
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'  # In production, use environment variable
@@ -192,21 +193,68 @@ def profile():
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
+    # Get date filter parameters
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+
+    # Set default date range (last 30 days) if not provided
+    if not start_date and not end_date:
+        end_date = datetime.now().strftime('%Y-%m-%d')
+        start_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
+    elif not start_date:
+        start_date = end_date
+    elif not end_date:
+        end_date = start_date
+
+    # Validate date range (ensure start_date <= end_date)
+    if start_date > end_date:
+        # Swap dates if start is after end
+        start_date, end_date = end_date, start_date
+
     conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT name, email, created_at FROM users WHERE id = ?",
-        (session['user_id'],)
-    )
-    user = cursor.fetchone()
-    conn.close()
+    try:
+        cursor = conn.cursor()
 
-    if user is None:
-        # If user not found, clear session and redirect to login
-        session.clear()
-        return redirect(url_for('login'))
+        # Get user information
+        cursor.execute(
+            "SELECT name, email, created_at FROM users WHERE id = ?",
+            (session['user_id'],)
+        )
+        user = cursor.fetchone()
 
-    return render_template("profile.html", user=user)
+        if user is None:
+            # If user not found, clear session and redirect to login
+            session.clear()
+            return redirect(url_for('login'))
+
+        # Get expense summary for the date range
+        cursor.execute(
+            "SELECT COUNT(*) as count, COALESCE(SUM(amount), 0) as total FROM expenses WHERE user_id = ? AND date >= ? AND date <= ?",
+            (session['user_id'], start_date, end_date)
+        )
+        summary = cursor.fetchone()
+
+        # Get recent expenses for the date range (limit 5)
+        cursor.execute(
+            """SELECT id, amount, category, date, description
+               FROM expenses
+               WHERE user_id = ? AND date >= ? AND date <= ?
+               ORDER BY date DESC, created_at DESC
+               LIMIT 5""",
+            (session['user_id'], start_date, end_date)
+        )
+        recent_expenses = cursor.fetchall()
+
+        return render_template("profile.html",
+                              user=user,
+                              summary=summary,
+                              recent_expenses=recent_expenses,
+                              start_date=start_date,
+                              end_date=end_date)
+    except Exception as e:
+        return render_template("error.html", error="Unable to load profile"), 500
+    finally:
+        conn.close()
 
 
 # ================================================================== #
