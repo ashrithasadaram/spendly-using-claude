@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - Spendly{% endblock %}
+
+{% block content %}
+<section class="coming-soon">
+    <span class="hero-badge">Coming Soon</span>
+    <div class="coming-soon-mark" aria-hidden="true">◈</div>
+    <h1 class="coming-soon-title">
+        Analytics is on the <em>way</em>
+    </h1>
+    <p class="coming-soon-subtitle">
+        We're building deeper insights into your spending — trends, patterns,
+        and visual breakdowns that make it easier to understand where your
+        money goes. Stay tuned.
+    </p>
+    <div class="coming-soon-actions">
+        <a href="{{ url_for('dashboard') }}" class="btn-primary">Back to Dashboard</a>
+        <a href="{{ url_for('expenses') }}" class="btn-ghost">View Expenses</a>
+    </div>
+</section>
+{% endblock %}
