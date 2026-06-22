@@ -641,14 +641,100 @@ def categories_trend():
 
 
 # ------------------------------------------------------------------ #
-# Placeholder routes — students will implement these                  #
+# Add expense (step 7)                                                #
 # ------------------------------------------------------------------ #
 
+ALLOWED_CATEGORIES = (
+    "Food", "Transport", "Bills", "Health",
+    "Entertainment", "Shopping", "Other",
+)
 
-@app.route("/expenses/add")
+
+@app.route("/expenses/add", methods=["GET", "POST"])
 @login_required
 def add_expense():
-    return "Add expense — coming in Step 7"
+    """Display and process the Add Expense form."""
+    error = None
+    amount_value = ""
+    category_value = ""
+    date_value = datetime.now().strftime("%Y-%m-%d")
+    description_value = ""
+
+    if request.method == "POST":
+        amount_raw = request.form.get("amount", "").strip()
+        category_value = request.form.get("category", "").strip()
+        date_value = request.form.get("date", "").strip()
+        description_value = request.form.get("description", "").strip()
+        amount_value = amount_raw  # preserve raw text for re-display
+
+        amount = None
+        if not amount_raw:
+            error = "Amount is required."
+        else:
+            try:
+                amount = float(amount_raw)
+            except ValueError:
+                error = "Amount must be a number."
+            else:
+                if amount <= 0:
+                    error = "Amount must be greater than 0."
+
+        if error is None:
+            if not category_value:
+                error = "Category is required."
+            elif category_value not in ALLOWED_CATEGORIES:
+                error = "Please choose a valid category."
+
+        if error is None:
+            if not date_value:
+                error = "Date is required."
+            else:
+                try:
+                    datetime.strptime(date_value, "%Y-%m-%d")
+                except ValueError:
+                    error = "Date must be in YYYY-MM-DD format."
+
+        if error is None and len(description_value) > 255:
+            error = "Description must be 255 characters or fewer."
+
+        if error is None:
+            conn = get_db()
+            try:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "INSERT INTO expenses "
+                    "(user_id, amount, category, date, description) "
+                    "VALUES (?, ?, ?, ?, ?)",
+                    (session["user_id"], amount, category_value,
+                     date_value, description_value),
+                )
+                conn.commit()
+                cursor.close()
+                conn.close()
+                return redirect(url_for("dashboard"))
+            except Exception as exc:
+                conn.rollback()
+                conn.close()
+                app.logger.exception("Failed to insert expense")
+                return render_template(
+                    "error.html",
+                    error=f"Unable to save expense: {exc}",
+                ), 500
+
+    return render_template(
+        "add_expense.html",
+        error=error,
+        amount_value=amount_value,
+        category_value=category_value,
+        date_value=date_value,
+        description_value=description_value,
+        categories=ALLOWED_CATEGORIES,
+    )
+
+
+# ------------------------------------------------------------------ #
+# Placeholder routes — students will implement these                  #
+# ------------------------------------------------------------------ #
 
 
 @app.route("/expenses/<int:id>/edit")
