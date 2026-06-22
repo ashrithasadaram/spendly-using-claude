@@ -175,6 +175,7 @@ def dashboard():
                              quick_stats=quick_stats,
                              recent_expenses=recent_expenses)
     except Exception as e:
+        app.logger.exception("Dashboard error")
         return render_template("error.html", error="Unable to load dashboard"), 500
     finally:
         conn.close()

@@ -29,16 +29,44 @@ def client(app):
 
 @pytest.fixture
 def auth_client(client):
-    """A logged-in test client (registers + logs in 'test@example.com')."""
-    client.post('/register', data={
-        'name': 'Test User',
+    """A logged-in test client (registers + logs in 'test@example.com').
+
+    Idempotent across tests: get_db() in database/db.py hardcodes 'spendly.db'
+    and ignores the in-memory config, so the user persists between runs. We
+    insert the user with a fresh password hash directly (the registration
+    route silently no-ops on duplicate email), wipe leftover expenses, and
+    log in via the route.
+    """
+    from werkzeug.security import generate_password_hash
+
+    conn = get_db()
+    try:
+        cursor = conn.cursor()
+        # Insert or update the test user with a known-good password hash.
+        # `INSERT OR IGNORE` skips if id collides; we then always UPDATE so
+        # the password is what we expect.
+        cursor.execute(
+            "INSERT OR IGNORE INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+            ('Test User', 'test@example.com', generate_password_hash('testpass'))
+        )
+        cursor.execute(
+            "UPDATE users SET password_hash = ? WHERE email = ?",
+            (generate_password_hash('testpass'), 'test@example.com')
+        )
+        # Clean leftover expenses from prior runs
+        cursor.execute(
+            "DELETE FROM expenses WHERE user_id IN (SELECT id FROM users WHERE email = ?)",
+            ('test@example.com',)
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    r = client.post('/login', data={
         'email': 'test@example.com',
         'password': 'testpass'
     })
-    client.post('/login', data={
-        'email': 'test@example.com',
-        'password': 'testpass'
-    })
+    assert r.status_code == 302, f"login failed: {r.status_code} {r.data[:200]}"
     return client
 
 
