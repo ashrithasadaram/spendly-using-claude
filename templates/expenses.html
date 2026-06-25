@@ -3,88 +3,97 @@
 {% block title %}Expenses - Spendly{% endblock %}
 
 {% block content %}
-<div class="expenses-container">
-    <div class="expenses-header">
-        <h1>Your Expenses</h1>
-        <div class="expenses-filters">
-            <form method="GET" action="{{ url_for('expenses') }}">
-                <div class="filter-group">
-                    <label for="start_date">From:</label>
-                    <input type="date" id="start_date" name="start_date" value="{{ request.args.get('start_date', '') }}">
-                </div>
-                <div class="filter-group">
-                    <label for="end_date">To:</label>
-                    <input type="date" id="end_date" name="end_date" value="{{ request.args.get('end_date', '') }}">
-                </div>
-                <div class="filter-group">
-                    <label for="category">Category:</label>
-                    <select id="category" name="category">
-                        <option value="">All Categories</option>
-                        {% for category in categories %}
-                        <option value="{{ category }}" {% if request.args.get('category') == category %}selected{% endif %}>
-                            {{ category }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-filter">Filter</button>
-                <a href="{{ url_for('expenses') }}" class="btn btn-reset">Reset</a>
-            </form>
+
+<section class="page-hero">
+    <div class="page-hero-inner">
+        <div class="page-hero-badge">Your ledger</div>
+        <h1 class="page-hero-title">
+            Every expense,<br>
+            <em>clearly tracked</em>
+        </h1>
+        <p class="page-hero-subtitle">
+            Browse, filter, and review every transaction you've recorded.
+            Narrow down by date range or category to find what you're looking for.
+        </p>
+        <div class="page-hero-actions">
+            <a href="{{ url_for('add_expense') }}" class="btn-primary">+ Add Expense</a>
+            <a href="{{ url_for('expenses_summary') }}" class="btn-ghost">See Summary</a>
         </div>
     </div>
+</section>
 
-    {% if expenses|length > 0 %}
-    <div class="expenses-summary">
-        <p>Showing {{ expenses|length }} expense{{ expenses|length != 1 | ternary('s', '') }}
-           {% if request.args.get('start_date') or request.args.get('end_date') or request.args.get('category') %}
-           (filtered)
-           {% endif %}</p>
-    </div>
+<div class="filter-bar">
+    <form method="GET" action="{{ url_for('expenses') }}">
+        <div class="filter-group">
+            <label for="start_date">From</label>
+            <input type="date" id="start_date" name="start_date" value="{{ request.args.get('start_date', '') }}">
+        </div>
+        <div class="filter-group">
+            <label for="end_date">To</label>
+            <input type="date" id="end_date" name="end_date" value="{{ request.args.get('end_date', '') }}">
+        </div>
+        <div class="filter-group">
+            <label for="category">Category</label>
+            <select id="category" name="category">
+                <option value="">All categories</option>
+                {% for cat in categories %}
+                <option value="{{ cat }}" {% if request.args.get('category') == cat %}selected{% endif %}>
+                    {{ cat }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-actions">
+            <button type="submit" class="btn-filter">Filter</button>
+            <a href="{{ url_for('expenses') }}" class="btn-reset">Reset</a>
+        </div>
+    </form>
+</div>
 
-    <div class="expenses-table">
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Category</th>
-                    <th>Amount</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for expense in expenses %}
-                <tr class="expense-row">
-                    <td>{{ expense.date }}</td>
-                    <td>
+<section class="dashboard-modules">
+    <div class="dashboard-module full">
+        <h2>All expenses</h2>
+        {% if expenses|length > 0 %}
+        <p class="empty-state" style="text-align:left; padding: 0 0 1.25rem; color: var(--ink-muted); font-size: 0.85rem;">
+            Showing {{ expenses|length }} expense{{ '' if expenses|length == 1 else 's' }}
+            {% if request.args.get('start_date') or request.args.get('end_date') or request.args.get('category') %}
+                <span style="color: var(--accent); font-weight: 500;">(filtered)</span>
+            {% endif %}
+        </p>
+        <div class="activity-list">
+            {% for expense in expenses %}
+            <div class="activity-item">
+                <div class="activity-item-info">
+                    <div class="activity-date">{{ expense.date }}</div>
+                    <div class="activity-category">
                         <span class="category-tag category-{{ expense.category|lower|replace(' ', '-') }}">
                             {{ expense.category }}
                         </span>
-                    </td>
-                    <td>₹{{ "%.2f"|format(expense.amount) }}</td>
-                    <td>{{ expense.description or '-' }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <div class="expenses-pagination">
-        <p>
-            <a href="{{ url_for('expenses_recent') }}" class="btn btn-secondary">View Recent</a>
-        </p>
-    </div>
-    {% else %}
-    <div class="empty-state">
-        <h2>No expenses found</h2>
-        <p>You haven't recorded any expenses yet.</p>
-        {% if not request.args.get('start_date') and not request.args.get('end_date') and not request.args.get('category') %}
-        <p>Start by adding your first expense!</p>
-        <a href="{{ url_for('add_expense') }}" class="btn btn-primary">Add Expense</a>
+                    </div>
+                    <div class="activity-description">
+                        {{ expense.description or 'No description' }}
+                    </div>
+                </div>
+                <div class="activity-amount">
+                    ₹{{ "%.2f"|format(expense.amount) }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
         {% else %}
-        <p>Try adjusting your filters to see expenses.</p>
-        <a href="{{ url_for('expenses') }}" class="btn btn-outline">Show All</a>
+        <div class="empty-state">
+            {% if request.args.get('start_date') or request.args.get('end_date') or request.args.get('category') %}
+            <h2>No matching expenses</h2>
+            <p>Try adjusting your filters to see more transactions.</p>
+            <a href="{{ url_for('expenses') }}" class="btn-primary">Show all</a>
+            {% else %}
+            <h2>No expenses yet</h2>
+            <p>You haven't recorded any expenses. Start tracking your spending today.</p>
+            <a href="{{ url_for('add_expense') }}" class="btn-primary">Add your first expense</a>
+            {% endif %}
+        </div>
         {% endif %}
     </div>
-    {% endif %}
-</div>
+</section>
+
 {% endblock %}

@@ -35,20 +35,22 @@
                 {% if recent_expenses|length > 0 %}
                 {% set categories = {} %}
                 {% for expense in recent_expenses %}
-                {% if expense.category not in categories %}
-                {% set _ = categories.update({expense.category: 0}) %}
-                {% endif %}
-                {% set _ = categories.update({expense.category: categories[expense.category] + 1}) %}
+                    {% if expense.category not in categories %}
+                        {% set _ = categories.update({expense.category: 0}) %}
+                    {% endif %}
+                    {% set _ = categories.update({expense.category: categories[expense.category] + 1}) %}
                 {% endfor %}
-                {% set sorted_categories = categories|sort(false, true) %}
-                {% for category, count in sorted_categories[:4] %}
-                <div class="mock-bar-row">
-                    <span class="mock-cat">{{ category }}</span>
-                    <div class="mock-bar-track">
-                        <div class="mock-bar mock-bar-{{ loop.index }}" style="width: {{ (count / recent_expenses|length * 100)|round(0) }}%"></div>
+                {% set sorted_categories = categories|dictsort(false, true) %}
+                {% for category, count in sorted_categories %}
+                    <div class="mock-bar-row">
+                        <span class="mock-cat">{{ category }}</span>
+                        <div class="mock-bar-track">
+                            <div class="mock-bar mock-bar-{{ loop.index }}"
+                                style="width: {{ ((count / recent_expenses|length) * 100)|round(0) }}%">
+                            </div>
+                        </div>
+                        <span class="mock-amt">{{ count }} expenses</span>
                     </div>
-                    <span class="mock-amt">{{ count }} expenses</span>
-                </div>
                 {% endfor %}
                 {% else %}
                 <div class="mock-bar-row">

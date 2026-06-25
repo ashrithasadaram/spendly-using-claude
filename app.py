@@ -82,6 +82,7 @@ def register():
     return render_template("register.html")
 
 
+# Login route - handles both GET and POST requests
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -149,18 +150,17 @@ def dashboard():
     conn = get_db()
     try:
         cursor = conn.cursor()
-        # Get quick stats for dashboard
+
+        # Quick stats for dashboard
         cursor.execute(
-            """SELECT
-                   COUNT(*) as count,
-                   SUM(amount) as total
+            """SELECT COUNT(*) as count, COALESCE(SUM(amount), 0) as total
                FROM expenses
                WHERE user_id = ?""",
             (user_id,)
         )
         quick_stats = cursor.fetchone()
 
-        # Get recent expenses
+        # Recent expenses
         cursor.execute(
             """SELECT id, amount, category, date, description
                FROM expenses
@@ -171,15 +171,29 @@ def dashboard():
         )
         recent_expenses = cursor.fetchall()
 
+        # Category summary (top categories by count + total amount)
+        cursor.execute(
+            """SELECT category,
+                      COUNT(*) as count,
+                      COALESCE(SUM(amount), 0) as total
+               FROM expenses
+               WHERE user_id = ?
+               GROUP BY category
+               ORDER BY count DESC
+               LIMIT 4""",
+            (user_id,)
+        )
+        sorted_categories = cursor.fetchall()
+
         return render_template("dashboard.html",
-                             quick_stats=quick_stats,
-                             recent_expenses=recent_expenses)
+                               quick_stats=quick_stats,
+                               recent_expenses=recent_expenses,
+                               sorted_categories=sorted_categories)
     except Exception as e:
         app.logger.exception("Dashboard error")
         return render_template("error.html", error="Unable to load dashboard"), 500
     finally:
         conn.close()
-
 
 @app.route("/logout", methods=["POST"])
 @login_required
