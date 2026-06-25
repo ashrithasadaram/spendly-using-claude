@@ -752,10 +752,110 @@ def add_expense():
 # ------------------------------------------------------------------ #
 
 
-@app.route("/expenses/<int:id>/edit")
+@app.route("/expenses/<int:id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_expense(id):
-    return "Edit expense — coming in Step 8"
+    """Load an existing expense and let the user update it."""
+    user_id = session.get("user_id")
+    conn = get_db()
+    try:
+        cursor = conn.cursor()
+
+        # Load the row, scoped to the logged-in user
+        cursor.execute(
+            "SELECT id, amount, category, date, description "
+            "FROM expenses WHERE id = ? AND user_id = ?",
+            (id, user_id),
+        )
+        expense = cursor.fetchone()
+
+        # 404 for both "not found" and "not yours" — don't leak ID existence
+        if expense is None:
+            return render_template("error.html", error="Expense not found"), 404
+
+        # Pre-fill values: from DB on GET, from form on POST
+        amount_value = expense["amount"]
+        category_value = expense["category"]
+        date_value = expense["date"]
+        description_value = expense["description"] or ""
+        error = None
+
+        if request.method == "POST":
+            amount_raw = request.form.get("amount", "").strip()
+            category_value = request.form.get("category", "").strip()
+            date_value = request.form.get("date", "").strip()
+            description_value = request.form.get("description", "").strip()
+            amount_value = amount_raw  # preserve raw text on validation failure
+
+            # Validation — must match add_expense exactly
+            amount = None
+            if not amount_raw:
+                error = "Amount is required."
+            else:
+                try:
+                    amount = float(amount_raw)
+                except ValueError:
+                    error = "Amount must be a number."
+                else:
+                    if amount <= 0:
+                        error = "Amount must be greater than 0."
+
+            if error is None:
+                if not category_value:
+                    error = "Category is required."
+                elif category_value not in ALLOWED_CATEGORIES:
+                    error = "Please choose a valid category."
+
+            if error is None:
+                if not date_value:
+                    error = "Date is required."
+                else:
+                    try:
+                        datetime.strptime(date_value, "%Y-%m-%d")
+                    except ValueError:
+                        error = "Date must be in YYYY-MM-DD format."
+
+            if error is None and len(description_value) > 255:
+                error = "Description must be 255 characters or fewer."
+
+            if error is None:
+                cursor.execute(
+                    "UPDATE expenses "
+                    "SET amount = ?, category = ?, date = ?, description = ? "
+                    "WHERE id = ? AND user_id = ?",
+                    (amount, category_value, date_value,
+                     description_value, id, user_id),
+                )
+
+                # If the row vanished between SELECT and UPDATE, treat as 404
+                if cursor.rowcount == 0:
+                    conn.rollback()
+                    return render_template(
+                        "error.html",
+                        error="Expense not found",
+                    ), 404
+
+                conn.commit()
+                cursor.close()
+                conn.close()
+                return redirect(url_for("expense_detail", id=id))
+
+        return render_template(
+            "edit_expense.html",
+            expense=expense,
+            error=error,
+            amount_value=amount_value,
+            category_value=category_value,
+            date_value=date_value,
+            description_value=description_value,
+            categories=ALLOWED_CATEGORIES,
+        )
+    except Exception as exc:
+        conn.rollback()
+        app.logger.exception("Failed to edit expense")
+        return render_template("error.html", error="Unable to save expense"), 500
+    finally:
+        conn.close()
 
 
 @app.route("/expenses/<int:id>/delete")
