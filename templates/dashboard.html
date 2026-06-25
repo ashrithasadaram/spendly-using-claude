@@ -40,7 +40,7 @@
                     {% endif %}
                     {% set _ = categories.update({expense.category: categories[expense.category] + 1}) %}
                 {% endfor %}
-                {% set sorted_categories = categories|dictsort(false, true) %}
+                {% set sorted_categories = categories|dictsort(by='value', reverse=true) %}
                 {% for category, count in sorted_categories %}
                     <div class="mock-bar-row">
                         <span class="mock-cat">{{ category }}</span>
