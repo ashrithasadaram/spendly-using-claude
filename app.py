@@ -858,10 +858,66 @@ def edit_expense(id):
         conn.close()
 
 
-@app.route("/expenses/<int:id>/delete")
+@app.route("/expenses/<int:id>/delete", methods=["GET", "POST"])
 @login_required
 def delete_expense(id):
-    return "Delete expense — coming in Step 9"
+    """Delete an expense owned by the logged-in user.
+
+    GET always responds with 404 (never executes the delete and never returns
+    405, which would leak the route's existence). POST authorises by
+    ``WHERE id = ? AND user_id = ?`` so users cannot delete each other's rows.
+    """
+    user_id = session.get("user_id")
+    conn = get_db()
+    try:
+        cursor = conn.cursor()
+
+        # GET must not perform a destructive action — render 404 instead.
+        # This also avoids a 405 that would leak the route exists.
+        if request.method == "GET":
+            return render_template(
+                "error.html",
+                error="Expense not found",
+            ), 404
+
+        # Authorise: confirm the row belongs to the logged-in user.
+        # Do not distinguish "not found" from "not yours" — both 404.
+        cursor.execute(
+            "SELECT id FROM expenses WHERE id = ? AND user_id = ?",
+            (id, user_id),
+        )
+        if cursor.fetchone() is None:
+            return render_template(
+                "error.html",
+                error="Expense not found",
+            ), 404
+
+        cursor.execute(
+            "DELETE FROM expenses WHERE id = ? AND user_id = ?",
+            (id, user_id),
+        )
+
+        # If the row vanished between SELECT and DELETE, treat as 404.
+        if cursor.rowcount == 0:
+            conn.rollback()
+            return render_template(
+                "error.html",
+                error="Expense not found",
+            ), 404
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return redirect(url_for("expenses"))
+    except Exception as exc:
+        conn.rollback()
+        app.logger.exception("Failed to delete expense")
+        return render_template(
+            "error.html",
+            error="Unable to delete expense",
+        ), 500
+    finally:
+        conn.close()
 
 
 if __name__ == "__main__":
