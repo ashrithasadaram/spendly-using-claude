@@ -743,6 +743,33 @@ a { color: inherit; text-decoration: none; }
 
 .row-link:hover { color: var(--accent); }
 
+/* Inline danger button used by Delete actions in lists and detail pages.
+   Uses the --danger / --danger-light tokens so the colour stays in sync
+   with the rest of the palette. */
+.btn-danger {
+    display: inline-block;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--danger);
+    background: var(--danger-light);
+    border: 1px solid var(--danger);
+    border-radius: var(--radius-sm);
+    padding: 0.35rem 0.75rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.btn-danger:hover {
+    background: var(--danger);
+    color: var(--paper-card);
+}
+
+/* Compact Delete form sits inside .activity-actions alongside .row-link. */
+.row-delete-form { margin: 0; }
+
 /* ------------------------------------------------------------------ */
 /* Category tags                                                       */
 /* ------------------------------------------------------------------ */
