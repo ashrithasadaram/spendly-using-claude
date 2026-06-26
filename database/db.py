@@ -1,8 +1,20 @@
+import os
 import sqlite3
 from werkzeug.security import generate_password_hash
 
+
+def _db_path():
+    """Return the SQLite file path, configurable via the DATABASE_PATH env var.
+
+    On Railway, the volume is mounted at ``/data`` and we point the file there
+    so it persists across redeploys. Locally we keep the historical
+    ``spendly.db`` filename for backwards compatibility.
+    """
+    return os.environ.get("DATABASE_PATH", "spendly.db")
+
+
 def get_db():
-    conn = sqlite3.connect('spendly.db')
+    conn = sqlite3.connect(_db_path())
     conn.row_factory = sqlite3.Row
     conn.execute('PRAGMA foreign_keys = ON')
     return conn
