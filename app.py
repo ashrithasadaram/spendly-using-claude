@@ -1,10 +1,13 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for, session
 from database.db import init_db, seed_db, get_db
 from functools import wraps
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-here'  # In production, use environment variable
+# SECRET_KEY must be a stable value across deploys so sessions survive
+# restarts. Falls back to a dev-only default so local runs still work.
+app.secret_key = os.environ.get("SECRET_KEY", "dev-only-secret-do-not-use-in-prod")
 
 
 # Authentication decorator
